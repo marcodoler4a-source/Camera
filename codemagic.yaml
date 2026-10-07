@@ -1,23 +1,90 @@
+
 workflows:
   ios-unsigned:
-    name: Camera Clone unsigned IPA
+    name: CameraClone Unsigned IPA
     max_build_duration: 60
+
     environment:
       xcode: latest
+
     scripts:
+      - name: Check Xcode project
+        script: |
+          set -e
+
+          echo "Checking project files..."
+          ls -la
+          ls -la CameraClone.xcodeproj
+          ls -la CameraClone
+
+          echo "Checking Xcode targets..."
+          xcodebuild -list \
+            -project CameraClone.xcodeproj
+
+      - name: Check build settings
+        script: |
+          set -e
+
+          xcodebuild \
+            -project CameraClone.xcodeproj \
+            -target CameraClone \
+            -configuration Release \
+            -showBuildSettings
+
       - name: Build iOS app
         script: |
           set -e
-          xcodebuild -project CameraClone.xcodeproj -scheme CameraClone -configuration Release -sdk iphoneos -derivedDataPath "$CM_BUILD_DIR/build/DerivedData" CODE_SIGNING_ALLOWED=NO build
+
+          echo "Building CameraClone..."
+
+          xcodebuild \
+            -project CameraClone.xcodeproj \
+            -target CameraClone \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$CM_BUILD_DIR/build/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
       - name: Package IPA
         script: |
           set -e
+
+          echo "Locating compiled app..."
+
           APP="$CM_BUILD_DIR/build/DerivedData/Build/Products/Release-iphoneos/CameraClone.app"
-          test -f "$APP/CameraClone"
-          mkdir -p "$CM_BUILD_DIR/build/ipa/Payload"
-          cp -R "$APP" "$CM_BUILD_DIR/build/ipa/Payload/CameraClone.app"
-          cd "$CM_BUILD_DIR/build/ipa"
-          zip -qry "$CM_BUILD_DIR/build/CameraClone-unsigned.ipa" Payload
-          unzip -l "$CM_BUILD_DIR/build/CameraClone-unsigned.ipa" | grep 'Payload/CameraClone.app/CameraClone'
+
+          if [ ! -f "$APP/CameraClone" ]; then
+            echo "ERROR: CameraClone executable not found."
+            find "$CM_BUILD_DIR/build/DerivedData/Build/Products" -name "*.app" -print
+            exit 1
+          fi
+
+          echo "Creating IPA..."
+
+          IPA_DIR="$CM_BUILD_DIR/build/ipa"
+
+          mkdir -p "$IPA_DIR/Payload"
+
+          cp -R "$APP" \
+            "$IPA_DIR/Payload/CameraClone.app"
+
+          cd "$IPA_DIR"
+
+          zip -qry \
+            "$CM_BUILD_DIR/build/CameraClone-unsigned.ipa" \
+            Payload
+
+          echo "Checking IPA contents..."
+
+          unzip -t \
+            "$CM_BUILD_DIR/build/CameraClone-unsigned.ipa"
+
+          unzip -l \
+            "$CM_BUILD_DIR/build/CameraClone-unsigned.ipa" \
+            | grep "Payload/CameraClone.app/CameraClone"
+
+          echo "IPA created successfully."
+
     artifacts:
       - build/CameraClone-unsigned.ipa
