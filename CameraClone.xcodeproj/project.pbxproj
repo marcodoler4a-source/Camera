@@ -23,6 +23,7 @@
             isa = PBXBuildFile;
             fileRef = A20000000000000000000006;
         };
+        A10000000000000000000007 = { isa = PBXBuildFile; fileRef = A20000000000000000000007; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
             path = Assets.xcassets;
             sourceTree = "<group>";
         };
+        A20000000000000000000007 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentScanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -80,6 +82,7 @@
                 A20000000000000000000001,
                 A20000000000000000000002,
                 A20000000000000000000005,
+                A20000000000000000000007,
                 A20000000000000000000003,
                 A20000000000000000000006,
             );
@@ -165,6 +168,7 @@
                 A10000000000000000000001,
                 A10000000000000000000002,
                 A10000000000000000000005,
+                A10000000000000000000007,
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
